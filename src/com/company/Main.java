@@ -1,14 +1,20 @@
 package com.company;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
 
     static Scanner in = new Scanner(System.in);
-    static ArrayList<Book> books = new ArrayList<>();
+    //static List<Book> books = (ArrayList)Arrays.asList(new Book[]{new Book("adsa","fsdfds", 2)});
+    static List<Book> books = new ArrayList<>();
 
     public static void main(String[] args){
+
+        Book book1 = new Book("Adsad","ddasdasd",12);
+        books.add(book1);
 
         String command = "";
         boolean otpusti = true;
@@ -54,12 +60,10 @@ public class Main {
         System.out.println("3\t Кол-во страниц");
         System.out.println("4\t Ничего");
 
-        boolean quit = false;
         int menuItem;
 
-        do {
-
             menuItem = in.nextInt();
+            in.nextLine();
 
             switch (menuItem) {
                 case 1:
@@ -78,17 +82,15 @@ public class Main {
                     System.out.println("Введите кол-во страниц: ");
                     if (in.hasNextInt()) {
                         book.setBookPages(in.nextInt());
+                        in.nextLine();
                     }
                     break;
                 case 4:
-                    quit = true;
                     break;
 
                 default:
                     System.out.println("Выберите правильный вариант");
-
             }
-        } while (!quit);
         return book;
     }
 
@@ -138,6 +140,7 @@ public class Main {
             System.out.println("Введите номер книги, которую надо отредактировать:");
             if (in.hasNextInt()) {
                 index = in.nextInt() - 1;
+                in.nextLine();
                 if (index < books.size() && index >= 0) {
                     book = books.get(index);
                     System.out.print("Текущая книга: ");
@@ -146,7 +149,6 @@ public class Main {
                 } else {
                     System.out.println("Такой книги нет");
                 }
-                in.nextLine();
             }
             continueLoop = continueMethod("Отредактировать еще одну книгу? ");
         }
@@ -159,14 +161,14 @@ public class Main {
         Book book = new Book();
         System.out.println("Введите номер книги: ");
         if (in.hasNextInt()) {
-            index = in.nextInt() - 1;
+            index = in.nextInt() - 1; // TODO: 11.07.2019 Узнать что делает метод
+            in.nextLine();
             if (index < books.size() && index >= 0) {
                 book = books.get(index);
                 book.displayBookInfo();
             } else {
                 System.out.println("Такой книги нет");
             }
-            in.nextLine(); // TODO: 11.07.2019 Узнать что делает метод
         }
         continueLoop = continueMethod("Найти еще книгу? ");
         }
