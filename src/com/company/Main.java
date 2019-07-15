@@ -54,6 +54,9 @@ public class Main {
     }
 
     private static Book bookEdit(Book book){
+        boolean continueLoop = true;
+        while (continueLoop) {
+
         System.out.println("Выберите параметр, который хотите изменить");
         System.out.println("1\t Название книги");
         System.out.println("2\t Автор");
@@ -91,6 +94,8 @@ public class Main {
                 default:
                     System.out.println("Выберите правильный вариант");
             }
+            continueLoop = continueMethod("Отредактировать еще один параметр? ");
+        }
         return book;
     }
 
