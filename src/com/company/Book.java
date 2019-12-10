@@ -21,7 +21,7 @@ public class Book implements Serializable {
     public Book(){}
 
     public void displayBookInfo(){
-        System.out.printf("Book name: %s Book author: %s Book pages: %d Book genre: %s Book wrapper: %s Book price: %f\n", bookName, bookAuthor, bookPages, bookGenre, bookWrapper, bookPrice);
+        System.out.printf("Book name: %s Book author: %s Book pages: %d Book genre: %s Book wrapper: %s Book price: %.2f\n", bookName, bookAuthor, bookPages, bookGenre, bookWrapper, bookPrice);
     }
 
     public String getBookGenre() {
