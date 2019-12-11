@@ -6,20 +6,25 @@ import com.google.gson.stream.JsonReader;
 
 import java.io.*;
 import java.util.*;
-import java.util.regex.Pattern;
 
 public class Main {
 
     static Scanner in = new Scanner(System.in);
     //static List<Book> books = (ArrayList)Arrays.asList(new Book[]{new Book("adsa","fsdfds", 2)});
     static List<Book> books = new ArrayList<>();
+    static List<String> genreList;
     static Gson gson = new Gson();
     private static String crunchify_file_location = "D:/java/book-store/crunchify.txt";
+    private static GenreUtility gu = new GenreUtility();
 
     public static void main(String[] args) throws IOException {
-        //Book book1 = new Book("Adsad","ddasdasd",12);
-        //books.add(book1);
-        //getBooks();
+        genreList = gu.loadGenres();
+        if (genreList == null) {
+            System.out.println(" NULL ");
+            genreList = new ArrayList<>();
+        } else {
+            log(genreList.size() + " SIZE ");
+        }
         crunchifyReadFromFile();
         listBook();
 
@@ -27,12 +32,10 @@ public class Main {
         boolean otpusti = true;
 
         while (otpusti) {
-            System.out.println("***** Add list search get edit del exit *****");
+            System.out.println("***** Add list search get edit del genres exit *****");
 
             if (in.hasNextLine()) {
                 command = in.nextLine();
-            } else {
-                System.out.println("Vvedi add...");
             }
 
             switch (command) {
@@ -60,6 +63,10 @@ public class Main {
                     deleteBook();
                     break;
 
+                case "genres":
+                    genresMenu();
+                    break;
+
                 case "exit":
                     otpusti = false;
                     break;
@@ -69,6 +76,66 @@ public class Main {
             }
         }
     }
+
+    //---------------------------------------- GENRES
+
+    private static void genresMenu(){
+        String command = "";
+        boolean otpusti = true;
+
+        while (otpusti) {
+            System.out.println("**GENRES MENU: Add del list edit exit *****");
+
+            if (in.hasNextLine()) {
+                command = in.nextLine().toLowerCase();
+            }
+
+            switch (command) {
+                case "add":
+                    genreList = gu.addGenre();
+                    break;
+
+                case "del":
+                    genreList = gu.deleteGenre();
+                    break;
+
+                case "list":
+                    listGenres();
+                    break;
+
+                case "edit":
+                    genreList = gu.editGenre();
+                    break;
+
+                case "exit":
+                    otpusti = false;
+                    break;
+
+                default:
+                    System.out.println("Выберите правильный пункт");
+            }
+        }
+    }
+
+    public static void listGenres(){
+        int i = 1;
+        if (!genreList.isEmpty()) {
+            for (String s : genreList) {
+                System.out.println(i + ". " + s);
+                i++;
+            }
+        } else {
+            System.out.println("No genres");
+        }
+    }
+
+    private static void chooseNewGenre(Book book) {
+        System.out.println("-- Выберите жанр книги:");
+        listGenres();
+
+        int userChoose = validateInt();
+        book.setBookGenre(genreList.get(userChoose-1));
+        }
 
     private static Book bookEdit(Book book) {
         boolean continueLoop = true;
@@ -106,10 +173,7 @@ public class Main {
                     book.setBookPages(validateInt());
                     break;
                 case 4:
-                    System.out.println("Введите жанр книги: ");
-                    if (in.hasNextLine()) {
-                        book.setBookGenre(in.nextLine());
-                    }
+                       chooseNewGenre(book);
                     break;
                 case 5:
                     System.out.println("Введите оплёт книги: ");
@@ -132,51 +196,13 @@ public class Main {
         return book;
     }
 
-       /* String a = "";
-        System.out.println("Изменить название книги? y/n");
-        if (in.hasNextLine()) {
-            a = in.nextLine();
-            if (a.equals("y")) {
-                System.out.println("Введите новое название книги: ");
-                if (in.hasNextLine()) {
-                    book.setBookName(in.nextLine());
-                }
-            } else  {
-                System.out.println("Изменить автора книги? y/n");
-                if (in.hasNextLine()) {
-                    a = in.nextLine();
-                    if (a.equals("y")) {
-                        System.out.println("Введите нового автора книги: ");
-                        if (in.hasNextLine()) {
-                            book.setBookAuthor(in.nextLine());
-                        }
-                    } else if (a.equals("n")) {
-                        System.out.println("Изменить кол-во стр. книги? y/n");
-                        if (in.hasNextLine()) {
-                            a = in.nextLine();
-                            if (a.equals("y")) {
-                                System.out.println("Введите кол-во страниц: ");
-                                if (in.hasNextInt()) {
-                                    book.setBookPages(in.nextInt());
-                                    in.nextLine();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            System.out.println("wtf");
-        }*/
-
-
     private static void editBook() {
         boolean continueLoop = true;
         while (continueLoop) {
             int index;
             Book book = new Book();
             System.out.println("Введите номер книги, которую надо отредактировать:");
-            index =  validateInt() - 1;
+            index = validateInt() - 1;
             if (index < books.size() && index >= 0) {
                 book = books.get(index);
                 System.out.print("Текущая книга: ");
@@ -185,9 +211,10 @@ public class Main {
             } else {
                 System.out.println("Такой книги нет");
             }
+
+            saveBook1(books);
+            continueLoop = continueMethod("Отредактировать еще одну книгу? ");
         }
-        saveBook1(books);
-        continueLoop = continueMethod("Отредактировать еще одну книгу? ");
     }
 
 
@@ -197,9 +224,6 @@ public class Main {
             int index;
             Book book = new Book();
             System.out.println("Введите номер книги: ");
-//            if (in.hasNextInt()) {
-//                index = in.nextInt() - 1;
-//                in.nextLine();
 
             index = validateInt() - 1;
             if (index < books.size() && index >= 0) {
@@ -240,10 +264,7 @@ public class Main {
             System.out.println("Введите кол-во страниц: ");
             book.setBookPages(validateInt());
 
-            System.out.println("Введите жанр книги: ");
-            if (in.hasNextLine()) {
-                book.setBookGenre(in.nextLine());
-            }
+            chooseNewGenre(book);
 
             System.out.println("Введите оплёт книги: ");
             if (in.hasNextLine()) {
@@ -341,46 +362,45 @@ public class Main {
 
     public static boolean continueMethod(String str) {
         boolean continueLoop = true;
+        String userinput = "";
         System.out.println(str + " y/n");
 
-        String a = "";
-
-        if (in.hasNextLine()) {
-            a = in.nextLine();
-            if (a.equals("y")) {
-                continueLoop = true;
-            } else if (a.equals("n")) {
-                continueLoop = false;
-            } else {
-                System.out.println("FATAL ERROR");
-                continueLoop = false;
-            }
-        }
-
-        // boolean quit = false;
-        //do{
-//            boolean choiceIsOK = false;
-//            do{
-//                String userinput = in.next();
-//                char choice = userinput.toLowerCase().charAt(0);
-//                switch(choice){
-//                    case 'y':
-//                        continueLoop = true;
-//                        choiceIsOK = true;
+//        String a = "";
 //
-//                        break;
-//                    case 'n':
-//                        continueLoop = false;
-//                        choiceIsOK = false;
-//                        //quit = true;
-//                        break;
-//                    default:
-//                        // error or warning
-//                        System.out.println("Type Y or N to respectively continue or quit");
-//                        break;
-//                }
-//            }while(!choiceIsOK);
-        // }while (!quit);
+//        if (in.hasNextLine()) {
+//            a = in.nextLine();
+//            if (a.equals("y")) {
+//                continueLoop = true;
+//            } else if (a.equals("n")) {
+//                continueLoop = false;
+//            } else {
+//                System.out.println("FATAL ERROR");
+//                continueLoop = false;
+//            }
+//        }
+            boolean choiceIsOK = false;
+            do{
+                if (in.hasNextLine()) {
+                    userinput = in.nextLine();
+                }
+
+                char choice = userinput.toLowerCase().charAt(0);
+                switch(choice){
+                    case 'y':
+                        continueLoop = true;
+                        choiceIsOK = true;
+
+                        break;
+                    case 'n':
+                        continueLoop = false;
+                        choiceIsOK = true;
+                        break;
+                    default:
+                        // error or warning
+                        System.out.println("Type Y or N to respectively continue or quit");
+                        break;
+                }
+            }while(!choiceIsOK);
 
         return continueLoop;
     }
@@ -479,11 +499,7 @@ public class Main {
         boolean continueLoop = true;
         while (continueLoop) {
             System.out.println("Введите автора, книги которого хотите найти");
-            String author = "";
-
-            if (in.hasNextLine()) {
-                author = in.nextLine();
-            }
+            String author = inputMore();
 
             for (Book b : books) {
                 if (b.getBookAuthor() != null && b.getBookAuthor().contains(author)) {
@@ -600,16 +616,24 @@ public class Main {
     }
 
     public static void deleteBooksByName() {
+        List<Book> booksToDelete = new ArrayList<>();
+        boolean isDeleted = false;
         boolean continueLoop = true;
         while (continueLoop) {
             System.out.println("Введите название книги, которую хотите удалить");
             String name = inputMore();
 
-            Iterator<Book> i = books.iterator();
-            while (i.hasNext()){
-                if (i.next().getBookName().toLowerCase().contains(name.toLowerCase())){
-                    i.remove();
+            for (Book b : books) {
+                if (b.getBookName() != null && b.getBookName().toLowerCase().contains(name.toLowerCase())) {
+                    isDeleted = true;
+                    booksToDelete.add(b);
                 }
+            }
+
+            if (!isDeleted) {
+                System.out.println("Книг не найдено");
+            } else {
+                deleteBooks(booksToDelete);
             }
 
             saveBook1(books);
@@ -618,20 +642,24 @@ public class Main {
     }
 
     public static void deleteBooksByAuthor() {
+        List<Book> booksToDelete = new ArrayList<>();
+        boolean isDeleted = false;
         boolean continueLoop = true;
         while (continueLoop) {
             System.out.println("Введите автора, книги которого хотите удалить");
-            String author = "";
+            String author = inputMore();
 
-            if (in.hasNextLine()) {
-                author = in.nextLine();
+            for (Book b : books) {
+                if (b.getBookAuthor() != null && b.getBookAuthor().toLowerCase().contains(author.toLowerCase())) {
+                    isDeleted = true;
+                    booksToDelete.add(b);
+                }
             }
 
-            for (int i = 0; i < books.size(); i++) {
-                if (books.get(i).getBookAuthor().contains(author)) {
-                    books.remove(i);
-                    System.out.println("removed");
-                }
+            if (!isDeleted) {
+                System.out.println("Книг не найдено");
+            } else {
+                deleteBooks(booksToDelete);
             }
             saveBook1(books);
             continueLoop = continueMethod("Удалить еще книги по автору? ");
@@ -639,6 +667,7 @@ public class Main {
     }
 
     public static void deleteBooksByPages() {
+        List<Book> booksToDelete = new ArrayList<>();
         boolean isDeleted = false;
         boolean continueLoop = true;
         while (continueLoop) {
@@ -647,23 +676,20 @@ public class Main {
 
             System.out.println("Введите максимальное кол-во стр.");
             int maxP = validateInt();
-//            if (in.hasNextInt()) {
-//                maxP = in.nextInt();
-//                in.nextLine();
-//            }
 
-            for (int i = 0; i < books.size(); i++) {
-                if (books.get(i).getBookPages() != 0 && books.get(i).getBookPages() >= minP
-                        && books.get(i).getBookPages() <= maxP) {
-                    books.remove(i);
-                    System.out.println("removed");
+            for (Book b : books) {
+                if (b.getBookPages() != 0 && b.getBookPages()>= minP && b.getBookPages() <= maxP) {
                     isDeleted = true;
+                    booksToDelete.add(b);
                 }
             }
-
             if (!isDeleted) {
                 System.out.println("Книг не найдено");
+            } else {
+                deleteBooks(booksToDelete);
             }
+
+            saveBook1(books);
             continueLoop = continueMethod("Удалить еще книгу? ");
         }
     }
@@ -711,6 +737,8 @@ public class Main {
     }
 
     public static void deleteBooksByPrice() {
+        List<Book> booksToDelete = new ArrayList<>();
+        boolean isDeleted = false;
         boolean continueLoop = true;
         while (continueLoop) {
             System.out.println("Введите минимальную цену");
@@ -719,13 +747,19 @@ public class Main {
             System.out.println("Введите максимальную цену");
             double maxP = validateDouble();
 
-            for (int i = 0; i < books.size(); i++) {
-                if (books.get(i).getBookPrice() != 0 && books.get(i).getBookPrice() >= minP
-                        && books.get(i).getBookPrice() <= maxP) {
-                    books.remove(i);
-                    System.out.println("removed");
+            for (Book b : books) {
+                if (b.getBookPages() != 0 && b.getBookPrice()>= minP && b.getBookPrice() <= maxP) {
+                    isDeleted = true;
+                    booksToDelete.add(b);
                 }
             }
+            if (!isDeleted) {
+                System.out.println("Книг не найдено");
+            } else {
+                deleteBooks(booksToDelete);
+            }
+
+            saveBook1(books);
             continueLoop = continueMethod("Удалить еще книгу? ");
         }
     }
@@ -738,19 +772,6 @@ public class Main {
 //        Pattern pattern = new Pattern("[A-Za-z]{1,20}");
 //        if ((pattern.matcher(s).matches()))
 //        { System.out.println("111");};
-//    }
-
-//    private static int checkInt(){
-//        int number;
-//        do {
-//            while (!in.hasNextInt()) {
-//                System.out.println("Вы ввели не число, попробуйсте снова");
-//                in.nextLine();
-//            }
-//            number = in.nextInt();
-//            in.nextLine();
-//        } while (number <= 0);
-//        return number;
 //    }
 
     private static int validateInt() {
@@ -796,9 +817,39 @@ public class Main {
             if (name.length()<3){
                 System.out.println("Введите больше 3-х символов");
             }
-        }while (name.length()<3);
+        } while(name.length()<3);
 
         return name;
+    }
+
+    private static void deleteBooks(List<Book> booksToDelete){
+        System.out.println("------ Хотите удалить ? y/n-----");
+        for (Book b : booksToDelete){
+            b.displayBookInfo();
+        }
+        boolean choiceIsOK = false;
+        String userinput = "";
+        do {
+            if (in.hasNextLine()) {
+                userinput = in.nextLine();
+            }
+
+            char choice = userinput.toLowerCase().charAt(0);
+            switch (choice) {
+                case 'y':
+                    books.removeAll(booksToDelete);
+                    System.out.println("Book deleted");
+                    choiceIsOK = true;
+                    break;
+                case 'n':
+                    choiceIsOK = true;
+                    break;
+                default:
+                    // error or warning
+                    System.out.println("Type Y or N to respectively continue or quit");
+                    break;
+            }
+        } while (!choiceIsOK);
     }
 }
 
