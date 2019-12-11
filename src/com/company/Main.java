@@ -10,9 +10,8 @@ import java.util.*;
 public class Main {
 
     static Scanner in = new Scanner(System.in);
-    //static List<Book> books = (ArrayList)Arrays.asList(new Book[]{new Book("adsa","fsdfds", 2)});
     static List<Book> books = new ArrayList<>();
-    static List<String> genreList;
+    static Map<Integer, String> genreList;
     static Gson gson = new Gson();
     private static String crunchify_file_location = "D:/java/book-store/crunchify.txt";
     private static GenreUtility gu = new GenreUtility();
@@ -21,7 +20,7 @@ public class Main {
         genreList = gu.loadGenres();
         if (genreList == null) {
             System.out.println(" NULL ");
-            genreList = new ArrayList<>();
+            genreList = new HashMap<Integer, String>();
         } else {
             log(genreList.size() + " SIZE ");
         }
@@ -104,7 +103,7 @@ public class Main {
                     break;
 
                 case "edit":
-                    genreList = gu.editGenre();
+                    //genreList = gu.editGenre();
                     break;
 
                 case "exit":
@@ -118,16 +117,14 @@ public class Main {
     }
 
     public static void listGenres(){
-        int i = 1;
-        if (!genreList.isEmpty()) {
-            for (String s : genreList) {
-                System.out.println(i + ". " + s);
-                i++;
+            if (!genreList.isEmpty()) {
+                for (Map.Entry me : genreList.entrySet()) {
+                    System.out.println("ID: "+me.getKey() + " & ЖАНР: " + me.getValue());
+                }
+            } else {
+                System.out.println("No genres");
             }
-        } else {
-            System.out.println("No genres");
         }
-    }
 
     private static void chooseNewGenre(Book book) {
         System.out.println("-- Выберите жанр книги:");
@@ -695,21 +692,31 @@ public class Main {
     }
 
     public static void deleteBooksByGenre() {
+        List<Book> booksToDelete = new ArrayList<>();
+        boolean isDeleted = false;
         boolean continueLoop = true;
         while (continueLoop) {
-            System.out.println("Введите жанр книги, которую хотите удалить");
-            String genre = "";
+            System.out.println("** Выберите жанр книг, которые хотите удалить");
+            listGenres();
 
-            if (in.hasNextLine()) {
-                genre = in.nextLine();
-            }
-
-            for (int i = 0; i < books.size(); i++) {
-                if (books.get(i).getBookGenre().contains(genre)) {
-                    books.remove(i);
-                    System.out.println("removed");
+            int userChoose = validateInt();
+            try {
+                String genre = genreList.get(userChoose-1);
+                for (Book b : books) {
+                    if (b.getBookGenre() != null && b.getBookGenre().equals(genre)) {
+                        isDeleted = true;
+                        booksToDelete.add(b);
+                    }
                 }
-            }
+                if (!isDeleted) {
+                    System.out.println("Книг не найдено");
+                } else {
+                    deleteBooks(booksToDelete);
+                }
+
+            } catch (IndexOutOfBoundsException e) {
+                    System.out.println("Вы ввели некорректный индекс");
+             }
             saveBook1(books);
             continueLoop = continueMethod("Удалить еще книги по жанру? ");
         }
@@ -725,12 +732,12 @@ public class Main {
                 wrapper = in.nextLine();
             }
 
-            for (int i = 0; i < books.size(); i++) {
-                if (books.get(i).getBookWrapper().contains(wrapper)) {
-                    books.remove(i);
-                    System.out.println("removed");
-                }
-            }
+//            for (int i = 0; i < books.size(); i++) {
+//                if (books.get(i).getBookWrapper().contains(wrapper)) {
+//                    books.remove(i);
+//                    System.out.println("removed");
+//                }
+//            }
             saveBook1(books);
             continueLoop = continueMethod("Удалить еще книги по оплёту? ");
         }
@@ -838,7 +845,7 @@ public class Main {
             switch (choice) {
                 case 'y':
                     books.removeAll(booksToDelete);
-                    System.out.println("Book deleted");
+                    System.out.println("Книги удалены");
                     choiceIsOK = true;
                     break;
                 case 'n':
