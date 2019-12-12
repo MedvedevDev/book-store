@@ -16,6 +16,10 @@ public class GenreUtility {
     public GenreUtility() {
     }
 
+    public String getNameOfGenre(int key){
+        return listGenre.get(key);
+    }
+
     public Map<Integer, String> addGenre(){
         boolean isExsist = false;
         boolean continueLoop = true;
@@ -44,7 +48,7 @@ public class GenreUtility {
             }
 
          if (!isExsist) {
-             listGenre.put(newId, newGenre);
+             listGenre.put(newId, newGenre.toLowerCase().replace(" ", ""));
              System.out.println("Жаер " + newGenre + " успешно добавлен");
          } else {
              System.out.println("Жанр с таким названием или ID уже существует");
@@ -63,9 +67,7 @@ public class GenreUtility {
         System.out.println("**** Введите ID жанра, который хотите удалить: ");
         int userChoose = validateInt();
 
-            //тут нужна проверка на null
             if (listGenre.get(userChoose) != null) {
-
                 System.out.println("Вы точно хотите удалить жанр " + listGenre.get(userChoose) + "? Для подтверждения введите названия жанра, для отмены введите 'not'");
                 if (in.hasNextLine()) {
                     userInput = in.nextLine();
@@ -82,7 +84,6 @@ public class GenreUtility {
             } else {
                 System.out.println("Жанра с таким айди нет");
             }
-
 //        try {
 //            if (!listGenre.isEmpty()) {
 //                for (Iterator<String> it = listGenre.iterator(); it.hasNext(); ) {
@@ -112,48 +113,29 @@ public class GenreUtility {
         }
     }
 
-//    public Map<Integer, String> editGenre(){
-//        String userInput="";
-//        listGenres();
-//        System.out.println("**** Введите номер жанра, который хотите отредактировать: ");
-//
-//        int userChoose = validateInt();
-//        try {
-//            System.out.println("Введите новое название жанра или 'not' для отмены");
-//            if (in.hasNextLine()) {
-//                userInput = in.nextLine();
-//            }
-//
-//            if (userInput.equals("not")) {
-//                System.out.println("Отмена");
-//                return listGenre;
-//            } else {
-//                listGenre.set(userChoose-1, userInput);
-//            }
-//
-//        }catch (IndexOutOfBoundsException e) {
-//            System.out.println("Вы ввели некорректный индекс");
-//        }
+    public Map<Integer, String> editGenre() {
+        String userInput = "";
+        listGenres();
 
-
-//        try {
-//            if (!listGenre.isEmpty()) {
-//                for (Iterator<String> it = listGenre.iterator(); it.hasNext(); ) {
-//                    String s = it.next();
-//                    System.out.println(s);
-//                    if (s.contains(newGenre)) {
-//                        it.remove();
-//                        System.out.println("Жаер " + s + " удален");
-//                        isDeleted = true;
-//                    }
-//                }
-//            }
-//        }catch (NoSuchElementException e){
-//            System.out.println("Нет такого жанра");
-//        }
-//        saveGenre(listGenre);
-//        return listGenre;
-//    }
+        System.out.println("**** Введите номер жанра, который хотите отредактировать: ");
+        int userChoose = validateInt();
+        if (listGenre.get(userChoose) != null) {
+                System.out.println("Введите новое название жанра или 'not' для отмены");
+                if (in.hasNextLine()) {
+                    userInput = in.nextLine();
+                }
+                if (userInput.equals("not")) {
+                    System.out.println("Отмена");
+                    return listGenre;
+                } else {
+                    listGenre.put(userChoose, userInput);
+                }
+        } else {
+            System.out.println("Жанра с таким id нет");
+        }
+        saveGenre(listGenre);
+        return listGenre;
+    }
 
 
     public  void saveGenre(Map<Integer, String> genres) {

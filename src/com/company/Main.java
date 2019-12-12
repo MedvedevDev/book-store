@@ -78,7 +78,7 @@ public class Main {
 
     //---------------------------------------- GENRES
 
-    private static void genresMenu(){
+    private static void genresMenu() {
         String command = "";
         boolean otpusti = true;
 
@@ -103,7 +103,7 @@ public class Main {
                     break;
 
                 case "edit":
-                    //genreList = gu.editGenre();
+                    genreList = gu.editGenre();
                     break;
 
                 case "exit":
@@ -116,23 +116,27 @@ public class Main {
         }
     }
 
-    public static void listGenres(){
-            if (!genreList.isEmpty()) {
-                for (Map.Entry me : genreList.entrySet()) {
-                    System.out.println("ID: "+me.getKey() + " & ЖАНР: " + me.getValue());
-                }
-            } else {
-                System.out.println("No genres");
+    public static void listGenres() {
+        if (!genreList.isEmpty()) {
+            for (Map.Entry me : genreList.entrySet()) {
+                System.out.println("ID: " + me.getKey() + " & ЖАНР: " + me.getValue());
             }
+        } else {
+            System.out.println("No genres");
         }
+    }
 
     private static void chooseNewGenre(Book book) {
-        System.out.println("-- Выберите жанр книги:");
+        System.out.println("-- Выберите новый жанр книги:");
         listGenres();
-
         int userChoose = validateInt();
-        book.setBookGenre(genreList.get(userChoose-1));
+        if (genreList.get(userChoose) != null) {
+            book.setBookGenre(userChoose);
+        } else {
+            System.out.println("Не правельный ID");
         }
+    }
+
 
     private static Book bookEdit(Book book) {
         boolean continueLoop = true;
@@ -306,6 +310,9 @@ public class Main {
             JsonReader myReader = new JsonReader(isReader);
             books = gson.fromJson(myReader, new TypeToken<List<Book>>() {
             }.getType());
+            if (books == null){
+                books = new ArrayList<>();
+            }
 
         } catch (Exception e) {
             log("error load cache from file " + e.toString());
@@ -511,14 +518,10 @@ public class Main {
         boolean continueLoop = true;
         while (continueLoop) {
             System.out.println("Введите жанр книги, которую хотите найти");
-            String genre = "";
-
-            if (in.hasNextLine()) {
-                genre = in.nextLine();
-            }
-
+            listGenres();
+            int userChoose = validateInt();
             for (Book b : books) {
-                if (b.getBookGenre() != null && b.getBookGenre().contains(genre)) {
+                if (b.getBookGenre() != 0 && b.getBookGenre() == userChoose) {
                     b.displayBookInfo();
                 }
             }
@@ -701,9 +704,8 @@ public class Main {
 
             int userChoose = validateInt();
             try {
-                String genre = genreList.get(userChoose-1);
                 for (Book b : books) {
-                    if (b.getBookGenre() != null && b.getBookGenre().equals(genre)) {
+                    if (b.getBookGenre() != 0 && b.getBookGenre() == userChoose) {
                         isDeleted = true;
                         booksToDelete.add(b);
                     }
